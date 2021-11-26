@@ -1,6 +1,6 @@
 name = "CrystalStructures"
 uuid = "7fb32940-d43e-44e6-86bb-79144c2b0943"
-authors = ["Brandon Flores <bsflores@wisc.edu>"]
+authors = ["Brandon Flores <bsflores@wisc.edu>", "Amber Lim <xalim@wisc.edu>"]
 version = "0.1.0"
 
 [deps]
