@@ -2,8 +2,8 @@ module CrystalStructures
 
 using   Printf
 using   StaticArrays
+using   LinearAlgebra
 import  Crystalline
-import  LinearAlgebra
 
 # Number of space groups
 # OEIS: A006227
@@ -11,6 +11,24 @@ const NO_SGS = (2, 17, 230, 4985, 222097)
 # Number of space groups, with chiral copies not distinct
 # OEIS: A004029
 const NO_SGS_PAIRED = (2, 17, 219, 4783, 222018, 28927915)
+
+# List of elements
+# You can convert a vector of element numbers to a vector of element names with ELEMENTS[v]
+const ELEMENTS = 
+[ 
+    "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",  "Ne",
+    "Na", "Mg", "Al", "Si", "P",  "S",  "Cl", "Ar", "K",  "Ca",
+    "Sc", "Ti", "V",  "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
+    "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y",  "Zr",
+    "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn",
+    "Sb", "Te", "I",  "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd",
+    "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb",
+    "Lu", "Hf", "Ta", "W",  "Re", "Os", "Ir", "Pt", "Au", "Hg",
+    "Tl", "Pb", "Bi", "Po", "As", "Rn", "Fr", "Ra", "Ac", "Th",
+    "Pa", "U",  "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm",
+    "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds",
+    "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og"
+]
 
 # Metallic radii of the elements in angstroms
 # Probably will be useful for sphere packing related things
@@ -45,5 +63,10 @@ const RADII_METALLIC_ANGSTROMS = Dict{String, Float64}(
 include("vectors.jl")
 include("crystals.jl")
 include("filetypes.jl")
+
+# Types
+export AbstractCrystal, CrystalStructure, DataGrid, CrystalStructureWithData
+# Functions
+export formula, readXSF, readXYZ, writeXYZ, readXSFcrystal
 
 end # module

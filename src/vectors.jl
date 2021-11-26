@@ -1,11 +1,14 @@
+const _basis{N} = SVector{N,SVector{N,Float64}}
+
 """
-    _nobasis{N}()
+    _basis{N}()
 
 Returns a set of `N` `N`-dimensional zero vectors, which can serve to indicate that the basis
-vectors of a dataset are missing, or that the structure is aperiodic.
+vectors of a dataset arecons missing, or that the structure is aperiodic.
 """
-# TODO: should probably use zeros(SVector{3, Float64}) somewhere here
-_nobasis{N}() = SVector{N,SVector{N,Float64}}(SVector{N,Float64}(0 for n=1:N) for n = 1:N)
+function _basis{N}() where N
+    return zeros(SVector{N,SVector{N,Float64}})
+end
 
 """
     _allsame(itr)
@@ -54,4 +57,15 @@ function _is_linearly_independent(vecs::AbstractVector{<:AbstractVector{<:Number
     # Convert to a matrix for rank checking
     mat = [vecs[m][n] for n = 1:N, m = 1:M]
     return _is_linearly_independent(mat)
+end
+
+"""
+    _reducecoords(B::AbstractMatrix{<:Number}, v::AbstractVector{<:Number})
+
+Converts a vector `v` from Cartesian coordinates to reduced coordinates relative to the basis
+vectors `B` of a unit cell, expressed as a collection of vectors.
+"""
+function _reducecoords(b::AbstractVector{AbstractVector{<:Number}}, v::AbstractVector{<:Number})
+    B = hcat(b...)
+    return inv(B) * v
 end
