@@ -2,6 +2,9 @@
     AbstractCrystal{N}
 
 Supertype for all types that describe crystal structures.
+
+All subtypes of `AbstractCrystalData{N,T}` consist of a basis, space group with origin, atomic
+sites, and information about the choice of cell vectors.
 """
 abstract type AbstractCrystal{N}
 end
@@ -139,16 +142,19 @@ function Base.display(xtal::CrystalStructure{N}) where N
     # New method for printing floats
     # Avoiding the @printf/@sprintf macros because dynamic formatting is difficult
     tostr(x::Number) = lpad(@sprintf("%f", x), 12)
-    println(string(N) * "-dimensional crystal structure\n")
+    println(string(N) * "-dimensional crystal structure")
+    # Print the space group
+    if xtal.spgrp == 0
+        println("No space group specified")
+    else
+        println("Space group " * string(xtal.spgrp))
+    end
+    println()
     # Print the basis vectors
     if xtal.basis == _basis{N}()
         println("Aperiodic (no basis vectors specified)")
     else
         println("Basis vectors:")
-        # Print the space group
-        if xtal.spgrp == 0
-            print("No space group")
-        end
         for n in 1:N
             # '`' is 0x60, and all letters come after this in Unicode
             # e.g. 'a' is 0x61, 'b' is 0x62, 'c' is 0x63...
@@ -182,104 +188,14 @@ end
 =#
 
 """
-    DataGrid{N,T}
+    AbstractCrystalData{N,T}
 
-Used to store `N`-dimensional volumetric data of type `T` for a crystal, giving both the basis 
-vectors defining the datagrid and the data itself. This has the advantage of being able to store
-data that is defined relative to the primitive cell vectors (common in the case of computational 
-data) or the conventional cell vectors.
+Supertype for all types that describe crystal structures with datasets of type `T`.
+
+All subtypes of `AbstractCrystalData{N,T}` must consist of a field containing crystal data and a
+field which contains datasets - usually, stored in a dictionary.
 """
-struct DataGrid{N,T}
-    # TODO: Does this need to handle aperiodic structures?
-    # Data basis vectors - may or may not match crystal
-    basis::SVector{N,SVector{N,Float64}}
-    # Origin, defined in reduced coordinates
-    origin::SVector{N,Float64}
-    data::Array{T,N}
-    function DataGrid{N,T}(
-        basis::AbstractVector{<:AbstractVector{<:Number}},
-        origin::AbstractVector{<:Number},
-        data::Array{T,N}
-    ) where {N<:Any, T<:Any}
-        new{N,T}(basis, origin, data)
-    end
-end
-
-function DataGrid{N,T}(
-    basis::AbstractVector{<:AbstractVector{<:Number}},
-    data::Array{T,N}
-) where {N<:Any, T<:Any}
-    return DataGrid{N,T}(basis, [0, 0, 0], data)
-end
-
-"""
-    CellMismatch([msg])
-
-The two unit cells defined by the different objects are inequivalent.
-"""
-struct CellMismatch <: Exception
-end
-
-"""
-    _check(g1::DataGrid{N,T}, g2::DataGrid{N,T})
-
-Checks that the datagrids are compatible with binary mathematical operations, like addition and
-multiplication. Throws a `CellMismatch` if the unit cells are incompatible for addition, and throws
-a `DimensionMismatch` if the datagrids are of different dimensionality.
-
-When interpolation functions are included to operate on datagrids (for resizing) these checks may
-be altered or removed as needed.
-"""
-function _check(g1::DataGrid{N,T1}, g2::DataGrid{N,T2}) where {N,T1,T2}
-    # TODO: can we do some sort of automatic conversion of unit cells?
-    g1.basis == g2.basis || throw(CellMismatch("Unit cells are not the same."))
-    # TODO: try adjusting the origin automatically
-    g1.origin == g2.origin || throw(CellMismatch("Unit cell origins are not the same."))
-    # TODO: try using interpolation to add grids of inequivalent size
-    size(g1.data) == size(g2.data) || throw(DimensionMismatch("Data grids differ in dimension."))
-    return nothing
-end
-
-# Adds two scalar datagrids together
-function Base.:+(g1::DataGrid{N,T}, g2::DataGrid{N,T}) where {N,T<:Number}
-    _check(g1, g2)
-    newdata = g1.data .+ g2.data
-    return DataGrid{N,T}(g1.basis, g1.origin, newdata)
-end
-
-# Element-wise scalar multiplication of two datagrids
-function Base.:*(g1::DataGrid{N,T}, g2::DataGrid{N,T}) where {N,T<:Number}
-    _check(g1, g2)
-    newdata = g1.data .* g2.data
-    return DataGrid{N,T}(g1.basis, g1.origin, newdata)
-end
-
-# Scalar multiplication of a whole datagrid
-function Base.:*(s::Number, g::DataGrid{N,T}) where {N,T<:Number}
-    return DataGrid{N,T}(g.basis, g.origin, s * g.data)
-end
-
-# Same but with reversed order of arguments
-function Base.:*(g::DataGrid{N,T}, s::Number) where {N,T<:Number}
-    return Base.*(s, g)
-end
-
-# Sum up all of the elements of the datagrid
-function sum(g::DataGrid{N,T}) where {N,T<:Number}
-    return sum(g.data)
-end
-
-"""
-    _make_general(a::AbstractArray{T,N})
-
-Converts a periodic grid to a general grid. This is necessary to correctly format data in some file
-formats, like XCrysDen XSF files.
-"""
-function _make_general(a::AbstractArray{T,N}) where {T,N}
-    # Reference sizes
-    sz = size(a)
-    # Loop through every coordinate of newsz
-    return [a[c .% sz .+ 1...] for c in Iterators.product((0:b for b in sz)...)]
+abstract type AbstractCrystalData{N,T} <: AbstractCrystal{N}
 end
 
 """
@@ -291,7 +207,25 @@ stored in a `Dict{String, DataGrid{N,T}}`.
 When a `CrystalStructureWithData{N,T}` is generated with a single dataset, the dataset may be
 accessed using the empty string `""`.
 """
-struct CrystalStructureWithData{N,T} <: AbstractCrystal{N}
+struct CrystalStructureWithData{N,T} <: AbstractCrystalData{N,T}
     xtal::CrystalStructure{N}
     data::Dict{String, DataGrid{N,T}}
+end
+
+function Base.display(xtaldata::CrystalStructureWithData{N,T}) where {N,T}
+    display(xtaldata.xtal)
+    println()
+    # List the datasets
+    if isempty(xtaldata.data)
+        println("No datasets specified")
+    else
+        str = "Datasets (of type "
+        l = lastindex(str) - 1
+        println(str * string(T) * "):")
+        for (k,v) in xtaldata.data
+            sz = size(v.data)
+            println(lpad(k, l) * ":   " * join(string.(sz), '×'))
+            # TODO: provide info for dataset vectors and origin
+        end
+    end
 end
