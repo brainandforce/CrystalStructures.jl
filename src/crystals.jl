@@ -240,21 +240,21 @@ function _check(g1::DataGrid{N,T1}, g2::DataGrid{N,T2}) where {N,T1,T2}
     return nothing
 end
 
-# Adds two datagrids together
+# Adds two scalar datagrids together
 function Base.:+(g1::DataGrid{N,T}, g2::DataGrid{N,T}) where {N,T<:Number}
     _check(g1, g2)
     newdata = g1.data .+ g2.data
     return DataGrid{N,T}(g1.basis, g1.origin, newdata)
 end
 
-# Element-wise multiplication of two datagrids
+# Element-wise scalar multiplication of two datagrids
 function Base.:*(g1::DataGrid{N,T}, g2::DataGrid{N,T}) where {N,T<:Number}
     _check(g1, g2)
     newdata = g1.data .* g2.data
     return DataGrid{N,T}(g1.basis, g1.origin, newdata)
 end
 
-# Scalar multiplication of a datagrid
+# Scalar multiplication of a whole datagrid
 function Base.:*(s::Number, g::DataGrid{N,T}) where {N,T<:Number}
     return DataGrid{N,T}(g.basis, g.origin, s * g.data)
 end
@@ -267,6 +267,19 @@ end
 # Sum up all of the elements of the datagrid
 function sum(g::DataGrid{N,T}) where {N,T<:Number}
     return sum(g.data)
+end
+
+"""
+    _make_general(a::AbstractArray{T,N})
+
+Converts a periodic grid to a general grid. This is necessary to correctly format data in some file
+formats, like XCrysDen XSF files.
+"""
+function _make_general(a::AbstractArray{T,N}) where {T,N}
+    # Reference sizes
+    sz = size(a)
+    # Loop through every coordinate of newsz
+    return [a[c .% sz .+ 1...] for c in Iterators.product((0:b for b in sz)...)]
 end
 
 """
