@@ -1,7 +1,7 @@
 name = "CrystalStructures"
 uuid = "7fb32940-d43e-44e6-86bb-79144c2b0943"
 authors = ["Brandon Flores <bsflores@wisc.edu>", "Amber Lim <xalim@wisc.edu>"]
-version = "0.1.0"
+version = "0.0.1"
 
 [deps]
 Crystalline = "ae5e2be0-a263-11e9-351e-f94dad1eb351"
