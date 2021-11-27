@@ -30,6 +30,9 @@ const ELEMENTS =
     "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og"
 ]
 
+# TODO: can we modify this to make it unnecessary?
+const ELEMENT_LOOKUP = Dict{String, Int}([(ELEMENTS[n] => n) for n in 1:length(ELEMENTS)])
+
 # Metallic radii of the elements in angstroms
 # Probably will be useful for sphere packing related things
 const RADII_METALLIC_ANGSTROMS = Dict{String, Float64}(
@@ -67,6 +70,6 @@ include("filetypes.jl")
 # Types
 export AbstractCrystal, CrystalStructure, DataGrid, CrystalStructureWithData
 # Functions
-export formula, readXSF, readXYZ, writeXYZ, readXSFcrystal
+export formula, readXYZ, writeXYZ, readXSFcrystal, writeXSFcrystal
 
 end # module
