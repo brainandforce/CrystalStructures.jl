@@ -121,7 +121,7 @@ function _make_general(a::AbstractArray{T,N}) where {T,N}
 end
 
 """
-    _make_general(a::AbstractArray{T,N})
+    _make_periodic(a::AbstractArray{T,N})
 
 Converts a general grid to a periodic grid. Some file formats will specify their datagrids in a
 general grid, repeating at the boundaries.

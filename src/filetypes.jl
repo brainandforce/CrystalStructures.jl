@@ -492,7 +492,7 @@ function readXSFcrystal(
 end
 
 """
-    function writeXSF(
+    function writeXSFcrystal(
         xtal::CrystalStructureWithData{3},
         io::IO;
         linesize = 4
