@@ -69,3 +69,31 @@ function _reducecoords(b::AbstractVector{AbstractVector{<:Number}}, v::AbstractV
     B = hcat(b...)
     return inv(B) * v
 end
+
+"""
+    printbasis(io::IO, basis::AbstractVector{<:AbstractVector{<:Real}})
+
+Prints the basis vectors in the following format:
+
+```
+Basis vectors:
+a:    2.847216    0.000000    0.000000
+b:   -1.423608    2.465762   -0.000000
+c:    0.000000    0.000000    4.538054
+```
+"""
+function printbasis(io::IO, basis::AbstractVector{<:AbstractVector{<:Real}})
+    tostr(x::Number) = lpad(@sprintf("%f", x), 12)
+    # Check if basis vectors are empty or zero
+    if isempty(basis) || any(all.(iszero, v for v in basis))
+        println(io, "Aperiodic (no basis vectors specified)")
+    else
+        println(io, "Basis vectors:")
+        for (n,v) in enumerate(basis)
+            # '`' is 0x60, and all letters come after this in Unicode
+            # e.g. 'a' is 0x61, 'b' is 0x62, 'c' is 0x63...
+            println(io, ('`' + n) * ':' * join(tostr.(v)))
+        end
+    end
+    return nothing
+end

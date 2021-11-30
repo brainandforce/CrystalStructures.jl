@@ -138,34 +138,42 @@ function _enumerate_unique_elements(v::AbstractVector)
     return collect(zip(v, index))
 end
 
-function Base.display(xtal::CrystalStructure{N}) where N
-    # New method for printing floats
-    # Avoiding the @printf/@sprintf macros because dynamic formatting is difficult
+printbasis(io::IO, xtal::CrystalStructure{N}) where N = printbasis(io, xtal.basis)
+
+"""
+    printsites(io::IO, xtal::CrystalStructure{N}) where Names
+
+Prints the atomic sites for a crystal structure in the following format:
+
+```
+Atomic sites:
+Ti      0.333333    0.666667    0.250000
+Ti      0.666667    0.333333    0.750000
+```
+"""
+function printsites(io::IO, xtal::CrystalStructure{N}) where N
     tostr(x::Number) = lpad(@sprintf("%f", x), 12)
-    println(string(N) * "-dimensional crystal structure")
+    println(io, "Atomic sites:")
+    for n in 1:length(xtal.atoms)
+        println(io, rpad(xtal.atoms[n], 4), join(tostr.(xtal.sites[n])))
+    end
+end
+
+# Display the data in a CrystalStructure{N}
+function Base.display(xtal::CrystalStructure{N}) where N
+    println(string(typeof(xtal)) * ":")
     # Print the space group
     if xtal.spgrp == 0
         println("No space group specified")
     else
         println("Space group " * string(xtal.spgrp))
     end
-    println()
     # Print the basis vectors
-    if xtal.basis == _basis{N}()
-        println("Aperiodic (no basis vectors specified)")
-    else
-        println("Basis vectors:")
-        for n in 1:N
-            # '`' is 0x60, and all letters come after this in Unicode
-            # e.g. 'a' is 0x61, 'b' is 0x62, 'c' is 0x63...
-            println(('`' + n) * ':' * join(tostr.(xtal.basis[n])))
-        end
-    end
+    println()
+    printbasis(stdout, xtal)
     # Print the atomic sites:
-    println("\nAtomic sites:")
-    for n in 1:length(xtal.atoms)
-        println(rpad(xtal.atoms[n], 4), join(tostr.(xtal.sites[n])))
-    end
+    println()
+    printsites(stdout, xtal)
 end
 
 """
@@ -176,16 +184,6 @@ Returns the formula string for a crystal.
 function formula(xtal::CrystalStructure{N}) where N
     
 end
-
-#=
-function _printsites(io::IO, xtal::CrystalStructure{N})
-    output_array = 
-    [
-        atom
-    ]
-    println(io, prefix)
-end
-=#
 
 """
     AbstractCrystalData{N,T}
@@ -212,20 +210,55 @@ struct CrystalStructureWithData{N,T} <: AbstractCrystalData{N,T}
     data::Dict{String, DataGrid{N,T}}
 end
 
-function Base.display(xtaldata::CrystalStructureWithData{N,T}) where {N,T}
-    display(xtaldata.xtal)
-    println()
-    # List the datasets
-    if isempty(xtaldata.data)
-        println("No datasets specified")
+"""
+    printdatasets(io, d::AbstractDict{<:Any, DataGrid{N,T}}) where {N,T}
+
+Prints brief info about the datasets contained by a dictionary of datagrids.
+"""
+function printdatasets(io, d::AbstractDict{<:Any, DataGrid{N,T}}) where {N,T}
+    if isempty(d)
+        println(io, "No datasets specified")
     else
         str = "Datasets (of type "
         l = lastindex(str) - 1
-        println(str * string(T) * "):")
-        for (k,v) in xtaldata.data
+        println(io, str * string(T) * "):")
+        for (k,v) in d
             sz = size(v.data)
-            println(lpad(k, l) * ":   " * join(string.(sz), '×'))
+            println(io, lpad(k, l) * ":   " * join(string.(sz), '×'))
             # TODO: provide info for dataset vectors and origin
         end
     end
+    return nothing
+end
+
+function printbasis(io::IO, xtaldata::CrystalStructureWithData{N,T}) where {N,T}
+    printbasis(io, xtaldata.xtal.basis)
+end
+
+function printsites(io::IO, xtaldata::CrystalStructureWithData{N,T}) where {N,T}
+    printsites(io, xtaldata.xtal)
+end
+
+function printdatasets(io::IO, xtaldata::CrystalStructureWithData{N,T}) where {N,T}
+    printdatasets(io, xtaldata.data)
+end
+
+# Display the data in a CrystalStructureWithData{N,T}
+function Base.display(xtaldata::CrystalStructureWithData{N,T}) where {N,T}
+    println(string(typeof(xtaldata)) * ":")
+    # Print the space group
+    if xtaldata.xtal.spgrp == 0
+        println("No space group specified")
+    else
+        println("Space group " * string(xtaldata.xtal.spgrp))
+    end
+    # Print the basis vectors:
+    println()
+    printbasis(stdout, xtaldata)
+    # Print the atomic sites:
+    println()
+    printsites(stdout, xtaldata)
+    # Print the datasets:
+    println()
+    printdatasets(stdout, xtaldata)
 end
