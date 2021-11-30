@@ -54,54 +54,16 @@ struct CrystalStructure{N} <: AbstractCrystal{N}
         @assert N == first(sites_vl) "expected $N-dimensional site position vectors, " *
             "got $(first(sites_vl))-dimensional vectors"
         @assert N == length(basis) "expected $N basis vectors, got $(length(basis))"
+        @assert length(sites) == length(atoms) "number of atoms and sites do not match"
         # Make sure that site and origin vector components are between 0 and 1
-        origin = origin - floor.(origin)
-        sites = [v .- floor.(v) for v in sites]
+        # This may not be needed for CrystalStructure{N}
+        # but would be required for CrystalGenerator{N}
+        # origin = origin - floor.(origin)
+        # sites = [v .- floor.(v) for v in sites]
         # Make sure the space group is valid
-        spgrp <= NO_SGS[N] || throw(ErrorException("$spgrp is not a valid space group number"))
+        @assert 0 <= spgrp <= NO_SGS[N] "$spgrp is not a valid space group number in $N dimensions"
         return new(basis, spgrp, origin, atoms, sites, conv, prim)
     end
-end
-
-"""
-    (xtal::CrystalStructure{N};
-        basis::Union{AbstractVector{<:AbstractVector{<:Real}}, Nothing} = nothing,
-        spgrp::Union{Integer, Nothing} = nothing,
-        atoms::Union{AbstractVector{<:AbstractString}, Nothing} = nothing,
-        sites::Union{AbstractVector{<:AbstractVector{<:Real}}, Nothing} = nothing,
-        conv::Union{Bool, Nothing} = nothing,
-        prim::Union{Bool, Nothing} = nothing,
-    ) 
-
-Updates a `CrystalStructure` with new parameters. By default, unset parameters are `nothing`; any
-set parameters will be used to construct the new `CrystalStructure`.
-"""
-function CrystalStructure{N}(xtal::CrystalStructure{N};
-    basis::Union{AbstractVector{<:AbstractVector{<:Real}}, Nothing} = nothing,
-    spgrp::Union{Integer, Nothing} = nothing,
-    origin::Union{AbstractVector{<:AbstractVector{<:Real}}, Nothing} = nothing,
-    atoms::Union{AbstractVector{<:AbstractString}, Nothing} = nothing,
-    sites::Union{AbstractVector{<:AbstractVector{<:Real}}, Nothing} = nothing,
-    conv::Union{Bool, Nothing} = nothing,
-    prim::Union{Bool, Nothing} = nothing,
-) where N
-    # TODO: There's probably a nicer way to do this, isn't there.
-    basis === nothing && (basis = xtal.basis)
-    spgrp === nothing && (spgrp = xtal.spgrp)
-    origin === nothing && (origin = xtal.spgrp)
-    atoms === nothing && (atoms = xtal.spgrp)
-    sites === nothing && (sites = xtal.sites)
-    conv === nothing && (conv = xtal.conv)
-    prim === nothing && (spgrp = xtal.prim)
-    return CrystalStructure{N}(
-        basis=basis,
-        spgrp=spgrp,
-        origin=origin,
-        atoms=atoms,
-        sites=sites,
-        conv=conv,
-        prim=prim,
-    )
 end
 
 """
