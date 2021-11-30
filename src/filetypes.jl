@@ -545,9 +545,7 @@ function writeXSF3D(
         sz = size(grid.data) .+ 1
         # Counter for inserting newlines
         ctr = 0
-        for x = 1:sz[1], y = 1:sz[2], z = 1:sz[3]
-            # TODO: verify that the printing occurs in the right order
-            # Julia is column-first, so this should be fine
+        for z = 1:sz[3], y = 1:sz[2], x = 1:sz[1]
             # Generate the new coordinate
             coord = ((x, y, z) .- 1) .% (sz .- 1) .+ 1
             # Write the data at that coordinate
