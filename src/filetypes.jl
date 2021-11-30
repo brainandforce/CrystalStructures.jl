@@ -334,7 +334,7 @@ function readXSF(
 end
 
 """
-    readXSFcrystal(
+    readXSF3D(
         io::IO; 
         spgrp::Int = 0,
         origin::Vector{Float64} = [0, 0, 0],
@@ -352,7 +352,7 @@ affect the reading of XSF files with correct syntax.
 This function is type-stable, but will only work on XSF files representing 3D crystal data (data of
 other dimensionality and molecular data are not supported).
 """
-function readXSFcrystal(
+function readXSF3D(
     io::IO;
     spgrp::Int = 0,
     origin::AbstractVector{<:Number} = [0, 0, 0],
@@ -480,19 +480,19 @@ function readXSFcrystal(
     )
 end
 
-function readXSFcrystal(
+function readXSF3D(
     filename::AbstractString;
     spgrp::Int = 0,
     origin::AbstractVector{<:Number} = [0, 0, 0],
     tryconv=false
 )
     return open(filename) do io
-        readXSFcrystal(io, spgrp = spgrp, origin = origin, tryconv = tryconv)
+        readXSF3D(io, spgrp = spgrp, origin = origin, tryconv = tryconv)
     end
 end
 
 """
-    function writeXSFcrystal(
+    function writeXSF3D(
         xtal::CrystalStructureWithData{3},
         io::IO;
         linesize = 4
@@ -500,7 +500,7 @@ end
 
 Writes an XSF file for a 3D crystal structure with data. 
 """
-function writeXSFcrystal(
+function writeXSF3D(
     xtaldata::CrystalStructureWithData{3, T},
     io::IO;
     linesize = 4
@@ -563,17 +563,18 @@ function writeXSFcrystal(
     return nothing
 end
 
-function writeXSFcrystal(
+function writeXSF3D(
     xtaldata::CrystalStructureWithData{3},
     filename::AbstractString;
     linesize = 4
 )
     open(filename, write=true) do io
-        writeXSFcrystal(xtaldata, io, linesize=linesize)
+        writeXSF3D(xtaldata, io, linesize=linesize)
     end
     return nothing
 end
 
+# TODO: finish methods for dealing with VASP files
 """
     readPOSCAR(io::IO) -> CrystalStructure{3}
 

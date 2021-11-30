@@ -71,6 +71,6 @@ include("filetypes.jl")
 # Types
 export AbstractCrystal, CrystalStructure, AbstractCrystalData, CrystalStructureWithData
 # Functions
-export formula, readXYZ, writeXYZ, readXSFcrystal, writeXSFcrystal
+export formula, readXYZ, writeXYZ, readXSF3D, writeXSF3D
 
 end # module
