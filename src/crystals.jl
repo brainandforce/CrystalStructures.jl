@@ -58,12 +58,30 @@ struct CrystalStructure{N} <: AbstractCrystal{N}
         # Make sure that site and origin vector components are between 0 and 1
         # This may not be needed for CrystalStructure{N}
         # but would be required for CrystalGenerator{N}
-        # origin = origin - floor.(origin)
-        # sites = [v .- floor.(v) for v in sites]
+        #=
+        origin = origin - floor.(origin)
+        sites = [v .- floor.(v) for v in sites]
+        =#
         # Make sure the space group is valid
         @assert 0 <= spgrp <= NO_SGS[N] "$spgrp is not a valid space group number in $N dimensions"
         return new(basis, spgrp, origin, atoms, sites, conv, prim)
     end
+end
+
+# TODO: Equality checking for CrystalStructure{N} is going to be quite complex!
+# Two structures may be equal even if their basis vectors and atomic positions are not the same
+# because they may have different settings or different choice of basis vectors.
+# This is a preliminary attempt but the details are going to take a while.
+function Base.:(==)(xtal1::CrystalStructure{N}, xtal2::CrystalStructure{N}) where N
+    # Number of atoms should be equal
+    size(xtal1.atoms) == size(xtal2.atoms) || return false
+    # Types of atoms should be checked next
+    if xtal1.basis != xtal2.basis
+        # TODO: check that the basis vectors can be converted
+        return false
+    end
+    # If all checks pass, return true
+    return true
 end
 
 """
