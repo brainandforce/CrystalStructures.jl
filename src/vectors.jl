@@ -18,6 +18,23 @@ Returns `true` if all the elements of an iterator are identical.
 _allsame(itr) = all(x -> x == itr[1], itr)
 
 """
+    _tovectors(M::AbstractMatrix)
+
+Converts a matrix of basis vectors to a vector of vectors. This is the preferred representation of
+basis vectors throughout Crystalline.jl.
+"""
+_tovectors(M::AbstractMatrix) = [M[:,n] for n in 1:size(M)[2]]
+
+"""
+    _tomatrix(V::AbstractVector{<:AbstractVector})
+
+Converts a vector of basis vectors to a matrix. The preferred represenation of basis vectors in 
+Crystalline.jl is a vector of vectors, so this should only be used when matrix-specific operations
+are needed.
+"""
+_tomatrix(V::AbstractVector{<:AbstractVector}) = hcat(V...)
+
+"""
     _is_linearly_independent(vecs::AbstractMatrix{<:Number}) -> Bool
 
 Returns `true` if a matrix consists of linearly independent vectors, `false` otherwise.
