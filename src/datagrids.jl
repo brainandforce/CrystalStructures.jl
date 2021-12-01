@@ -37,6 +37,15 @@ function DataGrid{N,T}(
     return DataGrid{N,T}(basis, [0, 0, 0], data)
 end
 
+# TODO: is this method of equality checking for DataGrids useful?
+function Base.:(==)(g1::DataGrid{N,T}, g2::DataGrid{N,T}) where {N,T}
+    # Check that the fields are all equal to each other
+    for sym in fieldnames(DataGrid{N,T})
+        getproperty(g1, sym) == getproperty(g2, sym) || return false
+    end
+    return true
+end
+
 function Base.display(g::DataGrid{N,T}) where {N,T}
     # Used to format the number
     tostr(x::Number) = lpad(@sprintf("%f", x), 12)
@@ -141,3 +150,6 @@ function _make_periodic(a::AbstractArray{T,N}) where {T,N}
     # This might require some weird tuple usage...
     return a[(1:n-1 for n in sz)...]
 end
+
+# TODO: include methods for grid interpolation
+# TODO: include methods to allow conversion between different unit cells
