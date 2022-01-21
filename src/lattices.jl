@@ -21,6 +21,8 @@ nuniqlen(basis::AbstractMatrix{<:Real}) = nuniqlen(_tovectors(basis))
 Returns the number of pairs of orthogonal vectors.
 """
 function northog(basis::AbstractVector{<:AbstractVector{<:Real}})
+    # FIXME: This doesn't work for arbitrary dimensions
+    # It needs to use the upper portion of the dot product matrix
     return count(iszero, dot.(basis, basis[circshift(1:length(basis), 1)]))
 end
 
@@ -37,6 +39,7 @@ Criteria for primitive unit cells in 3 dimensions:
     oS: 3 parameters (a, c, γ), a = b, α = β = 90°
     oI: 3 parameters (a, α, γ), a = b = c, |cos(α)| + |cos(β)| + |cos(γ)| = 1
     oF: 3 parameters (a, b, c), sin(α)/a = sin(β)/b = sin(γ)/c, α + β + γ = 180°
+        3 parameters (a, c, γ), [forgot the rest of this alternate test]
     tP: 2 parameters (a, c), a = b, α = β = γ = 90°
     tI: 2 parameters (a, α), a = b = c, |cos(α)| + |cos(β)| + |cos(γ)| = 1
     hP: 2 parameters (a, c), a = b, α = β = 90°, γ = 120°
@@ -51,4 +54,12 @@ Rules that need to be checked:
     Number of unique angles
     Cosine rule: |cos(α)| + |cos(β)| + |cos(γ)| = 1
     Sine rule: sin(α)/a = sin(β)/b = sin(γ)/c, α + β + γ = 180°
+    
+    The last three are probably going to be trickier to implement, or at the very least there
+    might be some unintuitive linear algebra tricks to make those checks happen faster.
 =#
+
+
+
+# TODO: what are the crtieria for a "good" lattice basis?
+# Potentially worth looking at the Niggli reduction algorithm to do this
