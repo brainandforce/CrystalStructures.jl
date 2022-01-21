@@ -17,3 +17,12 @@ The following conventions are maintained throughout CrystalStructures.jl.
 
 Keep lines under 100 characters in all files. You can use string concatenation, among other tools,
 to split long strings if they come up.
+
+### Type parameters
+
+All of the parametric types that contain dimensionality as a type parameter should have the 
+dimensionality parameters come first. So if you want to create `MyType` that has dimension `D` and
+type `T`, the type should be created as `MyType{D,T}`.
+
+This is the opposite of the format used for Julia's built-in `AbstractArray` but matches the 
+convention used for `NTuple`.
