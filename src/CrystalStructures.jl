@@ -67,10 +67,12 @@ include("vectors.jl")
 include("datagrids.jl")
 include("crystals.jl")
 include("filetypes.jl")
+include("reciprocal.jl")
 
 # Types
-export AbstractCrystal, CrystalStructure, AbstractCrystalData, CrystalStructureWithData
+export  AbstractCrystal, CrystalStructure, AbstractCrystalData, CrystalStructureWithData,
+        AbstractKPoints, KPointGrid, KPointList
 # Functions
-export formula, readXYZ, writeXYZ, readXSF3D, writeXSF3D
+export  formula, readXYZ, writeXYZ, readXSF3D, writeXSF3D
 
 end # module
