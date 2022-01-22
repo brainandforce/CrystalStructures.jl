@@ -66,8 +66,8 @@ const RADII_METALLIC_ANGSTROMS = Dict{String, Float64}(
 include("vectors.jl")
 include("datagrids.jl")
 include("crystals.jl")
-include("filetypes.jl")
 include("reciprocal.jl")
+include("filetypes.jl")
 
 # Types
 export  AbstractCrystal, CrystalStructure, AbstractCrystalData, CrystalStructureWithData,

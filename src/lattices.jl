@@ -1,3 +1,23 @@
+"""
+    AbstractLattice
+
+Contains information about a crystal lattice.
+"""
+abstract type AbstractLattice
+end
+
+"""
+    RealLattice{N}
+
+Describes an N-dimensional real space crystal lattice, with an associated primitive and 
+conventional lattice. These lattices may be the same depending on the lattice type.
+"""
+struct RealLattice{N} <: AbstractLattice
+    # Primitive and conventional lattice vectors are stored together
+    prim::SVector{N,SVector{N,Float64}}
+    conv::SVector{N,SVector{N,Float64}}
+end
+
 # TODO: Implement lattice checking and conversion
 # Some of this functionality might already be present in Crystalline.jl
 # However, we need to be able to recognize primitive lattices with their own unique conditions
@@ -63,3 +83,5 @@ Rules that need to be checked:
 
 # TODO: what are the crtieria for a "good" lattice basis?
 # Potentially worth looking at the Niggli reduction algorithm to do this
+
+# TODO: Tools for working with reciprocal space lattices

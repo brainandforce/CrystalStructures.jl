@@ -1,4 +1,4 @@
-# reciprocal.jl: data structures needed to stor reciprocal space data
+# reciprocal.jl: data structures needed to store reciprocal space data
 # TODO: I'm sure there's a Julia package that will generate paths in k-space for band structures
 # perhaps we should try to integrate that functionality?
 
@@ -56,8 +56,3 @@ end
 Returns the number of k-points in a `KPointList`.
 """
 nkpt(k::KPointList{N}) = size(k.list)
-
-
-function nkpt(k::KPointGrid{N})
-
-end
